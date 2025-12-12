@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_USER: odoo
+      POSTGRES_DB: postgres
+
+  odoo:
+    image: odoo:18.0
+    depends_on:
+      - postgres
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./addons:/mnt/extra-addon
+    environment:
+      - HOST=postgres  
+      - USER=odoo
+      - PASSWORD=odoo

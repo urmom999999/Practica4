@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <record id="view_lista_tareas_calendar" model="ir.ui.view">
+      <field name="name">lista.tareas.calendar</field>
+      <field name="model">lista_tareas.lista</field>
+      <field name="arch" type="xml">
+        <calendar string="Tareas por Fecha"
+                  date_start="fecha_asignada"
+                  date_stop="fecha_asignada"
+                  date_delay="1"
+                  color="color"
+                  mode="month"
+                  event_open_popup="true">
+          <field name="tarea"/>
+          <field name="prioridad"/>
+          <field name="estado"/>
+          <field name="urgente"/>
+          <field name="realizada"/>
+        </calendar>
+      </field>
+    </record>
+  </data>
+</odoo>
