@@ -8,7 +8,7 @@ Gestor de bibliotecas (Version Simple)
     """,  
 
     #Indicamos que es una aplicación
-    'application': True,
+    
     'author': "Sergi García",
     'website': "http://apuntesfpinformatica.es",
     'category': 'Tools',
@@ -30,4 +30,6 @@ Gestor de bibliotecas (Version Simple)
     # 'demo': [
     #     'demo.xml'
     # ],
+    'installable': True,
+    'application': True,
 }

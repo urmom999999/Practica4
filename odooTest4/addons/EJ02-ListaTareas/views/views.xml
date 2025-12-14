@@ -19,7 +19,7 @@
       <!-- Tipo de vistas que se mostrarán:
            list → vista en tabla
            form → vista en formulario -->
-      <field name="view_mode">list,form</field>
+      <field name="view_mode">kanban,calendar,list,form</field>
     </record>
 
     <!-- ==================================================

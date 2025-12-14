@@ -45,5 +45,7 @@
 
         # Archivo XML con las vistas, menús y acciones del modelo
         'views/views.xml',
+        'views/kanban.xml', 
+        'views/calendario.xml',
     ]
 }

@@ -9,8 +9,7 @@
         <calendar string="Tareas por Fecha"
                   date_start="fecha_asignada"
                   date_stop="fecha_asignada"
-                  date_delay="1"
-                  color="color"
+                  color="prioridad"
                   mode="month"
                   event_open_popup="true">
           <field name="tarea"/>

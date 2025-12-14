@@ -11,64 +11,166 @@
 
 \begin{document}
 \section{Introducción}
+En esta practica completaré 4 ejercicios diferentes en Odoo usando como referencia los archivos del repositorio de git entregado.\\
+Antes de comenzar con los ejercicios creare un odoo completamente nuevo en la version 18, realizando mas ajustes para no tener problemas constantes de nuevo.
 \begin{verbatim}
  docker-compose up -d
  \end{verbatim}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img1.png}
+\end{figure}
+Credenciales dentro de Odoo:
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img2.png}
+\end{figure}
+Cada vez que tengo que probar los cambios realizados, debo usar el comando en docker: 
+\begin{verbatim}
+ docker-compose restart odoo
+ docker-compose up -d
+ \end{verbatim}
+Tras ello debo hacer click en los tres puntos del modulo indicado y darle a "Actualizar"
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img8.png}
+\end{figure}
+Esto puede que me de una notificacion de error, normalmente sin indicar el origen del error.\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img9.png}
+\end{figure}
+Los logs de Docker son mi principal fuente de informacion para detectar estos errores y arreglarlos.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img8a.png}
+\end{figure}
+
+
+
+
 
 \section{01: Gestión de Tareas Mejorada}
     \subsection{Objetivo}
-
-    \subsection{Implementación}
-    Codigo de la Lista de tareas, model proporcionado en git:
-\begin{verbatim}
-    # -*- coding: utf-8 -*-
-
-# Importamos los módulos necesarios de Odoo para definir modelos
-from odoo import models, fields, api
-
-# Creamos nuestro modelo de datos principal.
-# Todos los modelos de Odoo deben heredar de models.Model
-class ListaTareas(models.Model):  # Buenas prácticas: nombres de clase en PascalCase (MayúsculaInicial)
-    
-    # Nombre técnico del modelo. Es como Odoo lo guarda internamente en la base de datos
-    _name = 'lista_tareas.lista'
-
-    # Descripción que aparece en la documentación y ayuda
-    _description = 'Modelo de la lista de tareas'
-
-    # Indica qué campo se mostrará por defecto como nombre del registro (en vistas y menús desplegables)
-    _rec_name = "tarea"
-
-    # Definimos los campos (atributos) que tendrá cada registro de este modelo:
-
-    # Campo de tipo texto (cadena). Será el nombre de la tarea.
-    tarea = fields.Char(string="Tarea")
-
-    # Campo de tipo entero. Se usará para indicar la prioridad (ej: 1 a 100)
-    prioridad = fields.Integer(string="Prioridad")
-
-    # Campo calculado de tipo booleano. Será True si la prioridad > 10
-    # compute indica el método que lo calcula
-    # store=True guarda el valor en la base de datos para poder filtrar y ordenar por él
-    urgente = fields.Boolean(string="Urgente", compute="_value_urgente", store=True)
-
-    # Campo booleano normal. Será marcado si la tarea ya se realizó.
-    realizada = fields.Boolean(string="Realizada")
-
-    # -------------------------------
-    # MÉTODO COMPUTADO
-    # -------------------------------
-    # Este método se ejecuta cada vez que cambie el campo 'prioridad'
-    @api.depends('prioridad')
-    def _value_urgente(self):
-        for record in self:
-            # Si la prioridad es mayor que 10, se considera urgente
-            record.urgente = record.prioridad > 10
-\end{verbatim}
 Para realizar este ejercicio debo añadir el datetime y mostrarla en una vista nueva tipo Kanban, junto a otra vista tipo calendario, para ello debo crear dos views nuevas.
-Kanban es un tipo de vista que muestra la informacion en columnas mediante tarjetas, ideal para esta lista de tareas.
+Kanban es un tipo de vista que muestra la informacion en columnas mediante tarjetas, ideal para esta lista de tareas. \\
+    \subsection{Implementación}
+     Usando de referencia el archivo view de git, junto guias para aprender la estructura Kanban, cree las dos vistas pedidas.\\
+    La vista Kanban:
+\begin{verbatim}
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <record id="view_lista_tareas_kanban" model="ir.ui.view">
+      <field name="name">lista.tareas.kanban</field>
+      <field name="model">lista_tareas.lista</field>
+      <field name="arch" type="xml">
+        <kanban default_group_by="estado">
+          <field name="tarea"/>
+          <field name="prioridad"/>
+          <field name="urgente"/>
+          <field name="realizada"/>
+          <field name="fecha_asignada"/>
+          <field name="estado"/>
+          
+          <templates>
+            <t t-name="kanban-box">
+              <div class="oe_kanban_card oe_kanban_global_click">
+                <div>
+                  <strong><field name="tarea"/></strong>
+                </div>
+                <div>
+                  Fecha: <field name="fecha_asignada"/>
+                </div>
+                <div>
+                  Prioridad: <field name="prioridad"/>
+                </div>
+                <div>
+                  <field name="realizada"/> Realizada
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
+  </data>
+</odoo>
+\end{verbatim}
+Y la vista del calendario:
+\begin{verbatim}
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
 
-    \subsubsection{Modelo de Datos}
+    <record id="view_lista_tareas_calendar" model="ir.ui.view">
+      <field name="name">lista.tareas.calendar</field>
+      <field name="model">lista_tareas.lista</field>
+      <field name="arch" type="xml">
+        <calendar string="Tareas por Fecha"
+                  date_start="fecha_asignada"
+                  date_stop="fecha_asignada"
+                  color="prioridad"
+                  mode="month"
+                  event_open_popup="true">
+          <field name="tarea"/>
+          <field name="prioridad"/>
+          <field name="estado"/>
+          <field name="urgente"/>
+          <field name="realizada"/>
+        </calendar>
+      </field>
+    </record>
+  </data>
+</odoo>
+\end{verbatim}
+Elementos cambiados en manifest para cargar las vistas propiamente:
+\begin{verbatim}
+    'data': [
+        # Permisos de acceso al modelo
+        'security/ir.model.access.csv',
+
+        # Archivo XML con las vistas, menús y acciones del modelo
+        'views/views.xml',
+        'views/kanban.xml', 
+        'views/calendario.xml',
+    ]
+\end{verbatim}
+Tambien hay que realizar cambios en views devido a las dos vistas nuevas, añadiendo calendar y kanban al viewMode:
+\begin{verbatim}
+        <record model="ir.actions.act_window" id="action_lista_tareas">
+      <!-- Título visible de la ventana -->
+      <field name="name">Listado de tareas</field>
+
+      <!-- Modelo al que se refiere la acción -->
+      <field name="res_model">lista_tareas.lista</field>
+
+      <!-- Tipo de vistas que se mostrarán:
+           list → vista en tabla
+           form → vista en formulario -->
+      <field name="view_mode">kanban,calendar,list,form</field>
+\end{verbatim}
+Al enlazar el manifest junto el views permite mostrar correctamente las actualizaciones realizadas. Ejemplo de dos creadas ya con las modificaciones.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img10.png}
+\end{figure}
+Vista del menu al seleccionar "Nuevo"
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img11.png}
+\end{figure}
+Ahora tenemos la opcion nueva del calendario, en la cual, si le damos click nos muestra la view nueva, aqui podemos seleccionar el dia de entrega en el calendario.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img12.png}
+\end{figure}
+Con esto el ejercicio esta completado, me encontré con numerosos errores, el principal siendo que al realizar cambios no estaba actualizando correctamente docker ni la aplicacion
+por lo que no podia ver mi progreso. Odoo me indico multiples veces de errores inesperados pero sin dar un codigo de error claro, lo que me hizo perder mucho tiempo. El principal
+ error fue no añadir al manifest las views correctamente, nombrandola calendar, calendario y viewcalendario.xml pensando que era otro elemento el que unia las views entre si.\\
+ Otro error fue un field name incorrecto que use de views.xml, el cual era llamado pero pero al no existir en models.py no permitia al programa funcionar.
+
+ 
 
 \section{02: Biblioteca de Cómics Ampliada}
     \subsection{Objetivo}
