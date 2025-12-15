@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ciclo_formativo,ciclo.formativo,model_ciclo_formativo,role_director,1,1,1,1
+access_ciclo_formativo_user,ciclo.formativo,model_ciclo_formativo,base.group_user,1,0,0,0
+access_modulo,modulo,model_modulo,role_director,1,1,1,1
+access_modulo_user,modulo,model_modulo,base.group_user,1,0,0,0
+access_alumno,alumno,model_alumno,role_director,1,1,1,1
+access_alumno_user,alumno,model_alumno,base.group_user,1,0,0,0
+access_profesor_director,profesor,model_profesor,role_director,1,1,1,1
+access_profesor_profesor,profesor,model_profesor,role_profesor,1,0,0,0
+access_profesor_user,profesor,model_profesor,base.group_user,0,0,0,0
