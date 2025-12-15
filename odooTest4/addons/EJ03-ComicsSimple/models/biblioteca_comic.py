@@ -54,11 +54,11 @@ class BibliotecaEjemplar(models.Model):
         hoy = date.today()
         for ejemplar in self:
             if ejemplar.fecha_prestamo and ejemplar.fecha_prestamo > hoy:
-                raise ValidationError(_("La fecha de préstamo no puede ser posterior al día actual."))
+                raise ValidationError(_("Error!! Fecha no puede ser posterior a entrega."))
     
     @api.constrains('fecha_devolucion')
     def _check_fecha_devolucion(self):
         hoy = date.today()
         for ejemplar in self:
             if ejemplar.fecha_devolucion and ejemplar.fecha_devolucion < hoy:
-                raise ValidationError(_("La fecha prevista de devolución no puede ser anterior al día actual."))
+                raise ValidationError(_("Error! No se puede devolver en una fecha anterior a hoy"))

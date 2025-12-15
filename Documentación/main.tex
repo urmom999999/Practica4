@@ -6,12 +6,20 @@
 \usepackage{verbatim}
 
 \graphicspath{{imagenes/}}
-\title{Programación de Servicios y Procesos: Práctica de Docker Local}
+
+\title{\textbf{Programación de Servicios y Procesos: Práctica de Docker Local}}
 \author{Álvaro Del Valle Fernández}
 
+
 \begin{document}
+\maketitle
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{odoo.png}
+\end{figure}
+\newpage
 \section{Introducción}
-En esta practica completaré 4 ejercicios diferentes en Odoo usando como referencia los archivos del repositorio de git entregado.\\
+En esta práctica completaré 4 ejercicios diferentes en Odoo usando como referencia los archivos del repositorio de git entregado.\\
 Antes de comenzar con los ejercicios creare un odoo completamente nuevo en la version 18, realizando mas ajustes para no tener problemas constantes de nuevo.
 \begin{verbatim}
  docker-compose up -d
@@ -25,17 +33,32 @@ Credenciales dentro de Odoo:
     \centering
     \includegraphics[width=4in]{img2.png}
 \end{figure}
+
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img3.png}
+\end{figure}
 Cada vez que tengo que probar los cambios realizados, debo usar el comando en docker: 
 \begin{verbatim}
  docker-compose restart odoo
  docker-compose up -d
  \end{verbatim}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img7.png}
+\end{figure}
+
+
 Tras ello debo hacer click en los tres puntos del modulo indicado y darle a "Actualizar"
 \begin{figure}[H]
     \centering
     \includegraphics[width=4in]{img8.png}
 \end{figure}
-Esto puede que me de una notificacion de error, normalmente sin indicar el origen del error.\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img5b.png}
+\end{figure}
+Esto puede que me de una notificación de error, normalmente sin indicar el origen del error.\\
 \begin{figure}[H]
     \centering
     \includegraphics[width=4in]{img9.png}
@@ -45,17 +68,22 @@ Los logs de Docker son mi principal fuente de informacion para detectar estos er
     \centering
     \includegraphics[width=4in]{img8a.png}
 \end{figure}
+Cuando tengo algun error total de odoo uso este comando, el cual borra todos los volumenes y 
+    me permite crearlos de nuevo cuando se corrompen, cosa que es común al realizar cambios relacionados con manejo de datos.
+\begin{verbatim}
+docker volume prune -f
+ \end{verbatim}
 
 
 
 
 
-\section{01: Gestión de Tareas Mejorada}
+\section{Actividad 01}
     \subsection{Objetivo}
 Para realizar este ejercicio debo añadir el datetime y mostrarla en una vista nueva tipo Kanban, junto a otra vista tipo calendario, para ello debo crear dos views nuevas.
 Kanban es un tipo de vista que muestra la informacion en columnas mediante tarjetas, ideal para esta lista de tareas. \\
     \subsection{Implementación}
-     Usando de referencia el archivo view de git, junto guias para aprender la estructura Kanban, cree las dos vistas pedidas.\\
+     Usando de referencia base el archivo view de git, junto a ListaTareasKanban para aprenderla estructura tipo Kanban, creé las dos vistas pedidas.\\
     La vista Kanban:
 \begin{verbatim}
 <?xml version="1.0" encoding="utf-8"?>
@@ -153,6 +181,11 @@ Tambien hay que realizar cambios en views devido a las dos vistas nuevas, añadi
 Al enlazar el manifest junto el views permite mostrar correctamente las actualizaciones realizadas. Ejemplo de dos creadas ya con las modificaciones.
 \begin{figure}[H]
     \centering
+    \includegraphics[width=4in]{img5.png}
+\end{figure}
+Una vez entrado al Listado:
+\begin{figure}[H]
+    \centering
     \includegraphics[width=4in]{img10.png}
 \end{figure}
 Vista del menu al seleccionar "Nuevo"
@@ -172,31 +205,849 @@ por lo que no podia ver mi progreso. Odoo me indico multiples veces de errores i
 
  
 
-\section{02: Biblioteca de Cómics Ampliada}
+\section{Actividad 02}
     \subsection{Objetivo}
+Segun el modelo dado de biblioteca, debo añadir diferentes elementos: gestionar socios con nombre, apellido e indentificador,\\
+Opcion para gestionar los comics y sus prestamos.\\
+Ejemplares con prestado a socio y inicio fin de prestamo.
+Gestinar las fechas adecuadamente.
 
     \subsection{Implementación}
+    Dentro de cambios basicos respecto al documento entregado, moví en manifest los valores installable y application
+    debido a que no me detectaba la aplicacion en Odoo, siendo esta la solución.
+\begin{verbatim}
+  'installable': True,
+    'application': True,
+\end{verbatim}
+  Dentro de biblioteca comic, cree los elementos para gestionar y mapear los campos necesarios para los modelos:
 
-    \subsubsection{Modelo de Datos}
+\begin{verbatim}
+  from odoo import models, fields, api, _
+  from odoo.exceptions import ValidationError
+  from datetime import date
 
-\section{03: Gestión Hospitalaria}
+  class BibliotecaComic(models.Model):
+    _name = 'biblioteca.comic'
+    _description = 'Comic'
+    
+    nombre = fields.Char(string="Título", required=True)
+    estado = fields.Selection([
+        ('borrador', 'Borrador'),
+        ('publicado', 'Publicado'),
+        ('archivado', 'Archivado')
+    ], string="Estado", default='borrador')
+    paginas = fields.Integer(string="Número de páginas")
+    activo = fields.Boolean(string="Activo", default=True)
+    autor_ids = fields.Many2many('biblioteca.autor', string="Autores")
+    
+    def archivar(self):
+        self.write({'activo': False, 'estado': 'archivado'})
+
+  class BibliotecaAutor(models.Model):
+    _name = 'biblioteca.autor'
+    _description = 'Autor'
+    
+    nombre = fields.Char(string="Nombre", required=True)
+    apellido = fields.Char(string="Apellido", required=True)
+
+  class BibliotecaSocio(models.Model):
+    _name = 'biblioteca.socio'
+    _description = 'Socio'
+    
+    identificador = fields.Char(string="ID Socio", required=True)
+    nombre = fields.Char(string="Nombre", required=True)
+    apellido = fields.Char(string="Apellido", required=True)
+
+  class BibliotecaEjemplar(models.Model):
+    _name = 'biblioteca.ejemplar'
+    _description = 'Ejemplar'
+    
+    comic_id = fields.Many2one('biblioteca.comic', string="Cómic", required=True)
+    codigo = fields.Char(string="Código ejemplar", required=True)
+    estado = fields.Selection([
+        ('disponible', 'Disponible'),
+        ('prestado', 'Prestado'),
+    ], string="Estado", default='disponible')
+  
+    socio_id = fields.Many2one('biblioteca.socio', string="Prestado a")
+    fecha_prestamo = fields.Date(string="Fecha préstamo")
+    fecha_devolucion = fields.Date(string="Fecha devolución")
+    
+    @api.constrains('fecha_prestamo')
+    def _check_fecha_prestamo(self):
+        hoy = date.today()
+        for ejemplar in self:
+            if ejemplar.fecha_prestamo and ejemplar.fecha_prestamo > hoy:
+                raise ValidationError(_("Error!!
+                 Fecha no puede ser posterior a entrega."))
+    
+    @api.constrains('fecha_devolucion')
+    def _check_fecha_devolucion(self):
+        hoy = date.today()
+        for ejemplar in self:
+            if ejemplar.fecha_devolucion and ejemplar.fecha_devolucion < hoy:
+                raise ValidationError(_
+                ("Error! No se puede devolver en una fecha anterior a hoy"))
+\end{verbatim}
+Los ultimos constraints comprueban las restricciones del punto 4, no permitiendo y enviando error cuando la accion es incorrecta.
+
+En ir.model.access.csv me ayuda a gestionar los permisos de acceso, con el comun funcionamiento de read,write,create y delete 1,1,1,1.
+\begin{verbatim}
+  id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_biblioteca_comic,biblioteca.comic,model_biblioteca_comic,base.group_user,1,1,1,1
+access_biblioteca_autor,biblioteca.autor,model_biblioteca_autor,base.group_user,1,1,1,1
+access_biblioteca_socio,biblioteca.socio,model_biblioteca_socio,base.group_user,1,1,1,1
+access_biblioteca_ejemplar,biblioteca.ejemplar,model_biblioteca_ejemplar,
+base.group_user,1,1,1,1
+\end{verbatim}
+Realicé algunos cambios en permisos debido a recurrentes errores a la hora de editar valores dentro de esta.\\
+Dentro del xml use la misma estructura pero añadiendo los campos nuevos mencinados anteriormente en el pyhton.
+\begin{verbatim}
+  <?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <record id='biblioteca_comic_action' model='ir.actions.act_window'>
+        <field name="name">Cómics</field>
+        <field name="res_model">biblioteca.comic</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="biblioteca_comic_view_form" model="ir.ui.view">
+        <field name="name">Comic - Form</field>
+        <field name="model">biblioteca.comic</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button type="object" name="archivar" string="Archivar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="nombre"/>
+                        <field name="autor_ids" widget="many2many_tags"/>
+                        <field name="estado"/>
+                        <field name="paginas"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="biblioteca_comic_view_list" model="ir.ui.view">
+        <field name="name">Comic - List</field>
+        <field name="model">biblioteca.comic</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="nombre"/>
+                <field name="estado"/>
+            </list>
+        </field>
+    </record>
+
+
+    <record id='biblioteca_socio_action' model='ir.actions.act_window'>
+        <field name="name">Socios</field>
+        <field name="res_model">biblioteca.socio</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="biblioteca_socio_view_form" model="ir.ui.view">
+        <field name="name">Socio - Form</field>
+        <field name="model">biblioteca.socio</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="identificador"/>
+                        <field name="nombre"/>
+                        <field name="apellido"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="biblioteca_socio_view_list" model="ir.ui.view">
+        <field name="name">Socio - List</field>
+        <field name="model">biblioteca.socio</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="identificador"/>
+                <field name="nombre"/>
+                <field name="apellido"/>
+            </list>
+        </field>
+    </record>
+
+
+    <record id='biblioteca_ejemplar_action' model='ir.actions.act_window'>
+        <field name="name">Ejemplares</field>
+        <field name="res_model">biblioteca.ejemplar</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="biblioteca_ejemplar_view_form" model="ir.ui.view">
+        <field name="name">Ejemplar - Form</field>
+        <field name="model">biblioteca.ejemplar</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="codigo"/>
+                            <field name="comic_id"/>
+                            <field name="estado"/>
+                        </group>
+                        <group>
+                            <field name="socio_id"/>
+                            <field name="fecha_prestamo"/>
+                            <field name="fecha_devolucion"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="biblioteca_ejemplar_view_list" model="ir.ui.view">
+        <field name="name">Ejemplar - List</field>
+        <field name="model">biblioteca.ejemplar</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="codigo"/>
+                <field name="comic_id"/>
+                <field name="estado"/>
+                <field name="socio_id"/>
+            </list>
+        </field>
+    </record>
+
+    <menuitem name="Biblioteca" id="biblioteca_menu_root" />
+    
+    <menuitem name="Cómics" id="biblioteca_comic_menu" 
+              parent="biblioteca_menu_root" 
+              action="biblioteca_comic_action"/>
+    
+    <menuitem name="Socios" id="biblioteca_socio_menu" 
+              parent="biblioteca_menu_root" 
+              action="biblioteca_socio_action"/>
+    
+    <menuitem name="Ejemplares" id="biblioteca_ejemplar_menu" 
+              parent="biblioteca_menu_root" 
+              action="biblioteca_ejemplar_action"/>
+
+</odoo>
+\end{verbatim}
+Realicé otra version con views separadas en diferentes archivos, una por cada vista siendo practicamente el mismo codigo,
+el problema fue que Odoo no era capaz de lanzarlo sin dar un codigo de error desconocido, esta version es mas estable.\\
+Una vez que Odoo es estable y permita Activar la app:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img13.png}
+\end{figure}
+Podemos acceder a nuestra app actualizada:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img21.png}
+\end{figure}
+Ahora muestra las vistas distintas en la barra, Comics, Socios y Ejemplares.\\
+Podemos añadir un comic nuevo:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img23.png}
+\end{figure}
+Y añadir el autor si no esta en el manifest.py como en el ejercicio original.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img22.png}
+\end{figure}
+Podemos archivarlo y quedará guardado.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img24.png}
+\end{figure}
+Podemos crear un nuevo socio:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img25.png}
+\end{figure}
+Y dentro de ejemplares:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img26.png}
+\end{figure}
+Cumple los campos a crear el prestamo:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img27.png}
+\end{figure}
+Completamos los datos con la información correcta:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img28.png}
+\end{figure}
+Y tenemos creado el sistema correctamente, con las restricciones de fecha de prestamo activas.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img29.png}
+\end{figure}
+
+\section{Actividad 03}
     \subsection{Objetivo}
+Este modulo trata sobre la creación de un hospital con tres modelos, paciente, médico y consulta. Estos deben de tener sus campos específicos 
+y definir las relaciones entre medico/pacientes.\\
+Este modulo me generó numerosos problemas al corromperse la base de datos, perdiendo horas en solucionar el error sin perder datos, teniendo que 
+rehacer odoo y borrar mediante comandos los datos ya almacenados. Posiblemente generados por configuración erronea en la carpeta security.
+    \subsection{Implementación}
+Configure las actions y views en hospital views.xml en vez de crear archivos separados, no soy capaz de hacerlo funcionar correctamente del otro metodo.\\
+
+\begin{verbatim}
+  <?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="hospital_paciente_action" model="ir.actions.act_window">
+        <field name="name">Pacientes</field>
+        <field name="res_model">hospital.paciente</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="hospital_paciente_view_form" model="ir.ui.view">
+        <field name="name">Paciente - Formulario</field>
+        <field name="model">hospital.paciente</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="nombre"/>
+                            <field name="apellidos"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="sintomas"/>
+                    </group>
+                    <field name="consulta_ids">
+                        <list>
+                            <field name="fecha_consulta"/>
+                            <field name="medico_id"/>
+                            <field name="diagnostico"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hospital_paciente_view_list" model="ir.ui.view">
+        <field name="name">Paciente - Lista</field>
+        <field name="model">hospital.paciente</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="nombre"/>
+                <field name="apellidos"/>
+                <field name="sintomas"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hospital_medico_action" model="ir.actions.act_window">
+        <field name="name">Médicos</field>
+        <field name="res_model">hospital.medico</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="hospital_medico_view_form" model="ir.ui.view">
+        <field name="name">Médico - Formulario</field>
+        <field name="model">hospital.medico</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="nombre"/>
+                            <field name="apellidos"/>
+                            <field name="numero_colegiado"/>
+                        </group>
+                    </group>
+                    <field name="consulta_ids">
+                        <list>
+                            <field name="fecha_consulta"/>
+                            <field name="paciente_id"/>
+                            <field name="diagnostico"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hospital_medico_view_list" model="ir.ui.view">
+        <field name="name">Médico - Lista</field>
+        <field name="model">hospital.medico</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="nombre"/>
+                <field name="apellidos"/>
+                <field name="numero_colegiado"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hospital_consulta_action" model="ir.actions.act_window">
+        <field name="name">Consultas</field>
+        <field name="res_model">hospital.consulta</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="hospital_consulta_view_form" model="ir.ui.view">
+        <field name="name">Consulta - Formulario</field>
+        <field name="model">hospital.consulta</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="paciente_id"/>
+                            <field name="medico_id"/>
+                            <field name="fecha_consulta"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="diagnostico"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hospital_consulta_view_list" model="ir.ui.view">
+        <field name="name">Consulta - Lista</field>
+        <field name="model">hospital.consulta</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="fecha_consulta"/>
+                <field name="paciente_id"/>
+                <field name="medico_id"/>
+                <field name="diagnostico"/>
+            </list>
+        </field>
+    </record>
+
+    <menuitem id="hospital_menu_root" name="Hospital"/>
+    
+    <menuitem id="hospital_pacientes_menu" 
+              name="Pacientes" 
+              parent="hospital_menu_root" 
+              action="hospital_paciente_action"/>
+    
+    <menuitem id="hospital_medicos_menu" 
+              name="Médicos" 
+              parent="hospital_menu_root" 
+              action="hospital_medico_action"/>
+    
+    <menuitem id="hospital_consultas_menu" 
+              name="Consultas" 
+              parent="hospital_menu_root" 
+              action="hospital_consulta_action"/>
+
+</odoo>
+\end{verbatim}
+El manifest e inits siguen la misma estructura que los otros ejercicios.\\
+En models hospital.py añado los campos de nombre,apellidos,sintomas e id consultas para relacionarlo propiamente.\\
+Con One2may indico la relación entre consultas cumpliendo el apartado 3.
+\begin{verbatim}
+  # -*- coding: utf-8 -*-
+from odoo import models, fields, api
+
+class HospitalPaciente(models.Model):
+    _name = 'hospital.paciente'
+    _description = 'Paciente'
+    nombre = fields.Char(string="Nombre", required=True)
+    apellidos = fields.Char(string="Apellidos", required=True)
+    sintomas = fields.Text(string="Síntomas")
+    consulta_ids = fields.One2many('hospital.consulta', 'paciente_id', string="Consultas")
+
+class HospitalMedico(models.Model):
+    _name = 'hospital.medico'
+    _description = 'Médico'
+    nombre = fields.Char(string="Nombre", required=True)
+    apellidos = fields.Char(string="Apellidos", required=True)
+    numero_colegiado = fields.Char(string="Número de colegiado", required=True)
+
+
+    consulta_ids = fields.One2many('hospital.consulta', 'medico_id', string="Consultas")
+
+class HospitalConsulta(models.Model):
+    _name = 'hospital.consulta'
+    _description = 'Consulta'
+    paciente_id = fields.Many2one('hospital.paciente', string="Paciente", required=True)
+    medico_id = fields.Many2one('hospital.medico', string="Médico", required=True)
+    diagnostico = fields.Text(string="Diagnóstico", required=True)
+    fecha_consulta = fields.Datetime(string="Fecha de consulta",
+     default=fields.Datetime.now)
+    
+
+
+    paciente_nombre = fields.Char(related='paciente_id.nombre', store=True,
+     string="Nombre Paciente")
+    medico_nombre = fields.Char(related='medico_id.nombre', store=True,
+     string="Nombre Médico")
+\end{verbatim}
+Con esto cumplimos los multiples 1 N  entre paciente y consulta, medico y consulta, junto N 1 de  consulta y paciente, consulta y médico.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img31.png}
+\end{figure}
+Una vez activada la app nos mostrará correctamente el menu con las views indicadas.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img32.png}
+\end{figure}
+Podemos añadir un paciente junto los campos adecuados:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img33.png}
+\end{figure}
+Agregar medico:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img33.png}
+\end{figure}
+Agregar consulta del medico al paciente:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img35.png}
+\end{figure}
+
+
+
+
+\section{Actividad 04}
+    \subsection{Objetivo}
+Crear un módulo para un instituto compuesto de los modelos ciclo formativo, modulo, alumno y profesor, cada uno con sus 
+relaciones entre ellos, en este caso con relacion N M como modulos-alumno.\\
+
 
     \subsection{Implementación}
+Views en un solo archivo como el resto para eliminar posibles errores.\\
+Cada model es llamado y tiene las ids adecuadas, creando la estructura principal del trabajo:
+\begin{verbatim}
+  <?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ciclo_formativo_action" model="ir.actions.act_window">
+        <field name="name">Ciclos Formativos</field>
+        <field name="res_model">ciclo.formativo</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <menuitem name="Gestión Educativa" id="gestion_educativa_menu"/>
+    
+    <menuitem name="Ciclos Formativos" id="ciclo_formativo_menu" 
+              parent="gestion_educativa_menu" 
+              action="ciclo_formativo_action"/>
+    
 
-    \subsubsection{Modelo de Datos}
+    <record id="ciclo_formativo_view_list" model="ir.ui.view">
+        <field name="name">ciclo.formativo.list</field>
+        <field name="model">ciclo.formativo</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="codigo"/>
+            </list>
+        </field>
+    </record>
 
-\section{04: Gestión de Ciclos Formativos}
-    \subsection{Objetivo}
+    <record id="ciclo_formativo_view_form" model="ir.ui.view">
+        <field name="name">ciclo.formativo.form</field>
+        <field name="model">ciclo.formativo</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Ciclo Formativo"/>
+                        <h1><field name="name"/></h1>
+                        <label for="codigo" string="Código"/>
+                        <h2><field name="codigo"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="codigo"/>
+                        </group>
+                        <group>
+                            <field name="descripcion" widget="textarea"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
 
-    \subsection{Implementación}
+    <record id="modulo_action" model="ir.actions.act_window">
+        <field name="name">Módulos</field>
+        <field name="res_model">modulo</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <menuitem name="Módulos" id="modulo_menu" 
+              parent="gestion_educativa_menu" 
+              action="modulo_action"/>
+
+    <record id="modulo_view_list" model="ir.ui.view">
+        <field name="name">modulo.list</field>
+        <field name="model">modulo</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="codigo"/>
+                <field name="horas"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="modulo_view_form" model="ir.ui.view">
+        <field name="name">modulo.form</field>
+        <field name="model">modulo</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Módulo"/>
+                        <h1><field name="name"/></h1>
+                        <label for="codigo" string="Código"/>
+                        <h2><field name="codigo"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="codigo"/>
+                            <field name="horas"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="alumno_action" model="ir.actions.act_window">
+        <field name="name">Alumnos</field>
+        <field name="res_model">alumno</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <menuitem name="Alumnos" id="alumno_menu" 
+              parent="gestion_educativa_menu" 
+              action="alumno_action"/>
+    <record id="alumno_view_list" model="ir.ui.view">
+        <field name="name">alumno.list</field>
+        <field name="model">alumno</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="apellidos"/>
+                <field name="dni"/>
+            </list>
+        </field>
+    </record>
+    <record id="alumno_view_form" model="ir.ui.view">
+        <field name="name">alumno.form</field>
+        <field name="model">alumno</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Alumno"/>
+                        <h1><field name="name"/> <field name="apellidos"/></h1>
+                        <label for="dni" string="DNI"/>
+                        <h2><field name="dni"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="apellidos"/>
+                            <field name="dni"/>
+                        </group>
+                        <group>
+                            <field name="fecha_nacimiento"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="profesor_action" model="ir.actions.act_window">
+        <field name="name">Profesores</field>
+        <field name="res_model">profesor</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <menuitem name="Profesores" id="profesor_menu" 
+              parent="gestion_educativa_menu" 
+              action="profesor_action"/>
+
+    <record id="profesor_view_list" model="ir.ui.view">
+        <field name="name">profesor.list</field>
+        <field name="model">profesor</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="apellidos"/>
+                <field name="dni"/>
+            </list>
+        </field>
+    </record>
+    <record id="profesor_view_form" model="ir.ui.view">
+        <field name="name">profesor.form</field>
+        <field name="model">profesor</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Profesor"/>
+                        <h1><field name="name"/> <field name="apellidos"/></h1>
+                        <label for="dni" string="DNI"/>
+                        <h2><field name="dni"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="apellidos"/>
+                            <field name="dni"/>
+                        </group>
+                        <group>
+                            <field name="especialidad"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
+\end{verbatim}
+Dentro de los modelos declaré las relaciones:
+\begin{verbatim}
+from odoo import models, fields
+
+class Profesor(models.Model):
+    _name = 'profesor'
+    _description = 'Profesor'
+    
+    name = fields.Char(string='Nombre', required=True)
+    apellidos = fields.Char(string='Apellidos', required=True)
+    dni = fields.Char(string='DNI', required=True, size=9)
+    especialidad = fields.Char(string='Especialidad')
+    modulo_ids = fields.One2many('modulo', 'profesor_id', string='Módulos que imparte')
+\end{verbatim}
+Como podemos ver las declaraciones se cumplen correctamente enlazando 1 N profesor módulos.\\
+En security ir.model.access.csv declaré los permisos de cada miembro, esta version es estable y no me volvió a dar
+errores aunque aunque tengo dudas sobre la configuración final de los permisos:
+\begin{verbatim}
+  id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ciclo_formativo,ciclo.formativo,model_ciclo_formativo,role_director,1,1,1,1
+access_ciclo_formativo_user,ciclo.formativo,model_ciclo_formativo,base.group_user,1,0,0,0
+access_modulo,modulo,model_modulo,role_director,1,1,1,1
+access_modulo_user,modulo,model_modulo,base.group_user,1,0,0,0
+access_alumno,alumno,model_alumno,role_director,1,1,1,1
+access_alumno_user,alumno,model_alumno,base.group_user,1,0,0,0
+access_profesor_director,profesor,model_profesor,role_director,1,1,1,1
+access_profesor_profesor,profesor,model_profesor,role_profesor,1,0,0,0
+access_profesor_user,profesor,model_profesor,base.group_user,0,0,0,0
+\end{verbatim}
+Tras llegar a uba version estable, intentaremos activar la app:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img41.png}
+\end{figure}
+Tras entrar mostrará correctamente los elementos:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img43.png}
+\end{figure}
+
+Error al cambiar los permisos y permitir solo al director editarlos, por lo que no podía usar los campos para añadir
+elementos nuevos.\\
 Error en el ir.model.access.csv que produjo que no lo detectase sin dar un error claro.\\
+Comandos extra para intentar que abra el módulo:\\
+\begin{verbatim}
+  Get-ChildItem -Path . -Recurse -Filter "*.pyc" -File | Remove-Item -Force
+Get-ChildItem -Path . -Recurse -Filter "__pycache__" -Directory | Remove-Item -Recurse -Force
+\end{verbatim}
+
 Multiples errores con las horas\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=4in]{img51.png}
+\end{figure}
 Error continuo que no se solucionó hasta que seleccioné Delete y borre y reinstale la App de nuevo, tampoco sin indicar desde Odoo la causa del problema.
 \begin{figure}[H]
     \centering
     \includegraphics[width=4in]{img42.png}
 \end{figure}
-    \subsubsection{Modelo de Datos}
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Conclusión}
+Mi mayor problema al realizar estos ejercicios fue la falta de logs adecuados que indicasen claramente el origen del problema, la mayor parte del tiempo fue 
+dedicado a encontrar el origen del error y leer logs para comprender que estaba mal tras cada cambio. El mayor error que me encontre fue en la actividad 03 donde Odoo dio un código de error al crear los archivos,
+ creándolos de forma parcial, indicando que esa base de datos ya existia pero sin permitir lanzar la aplicacion o editar directamente.\\
+ Para ello necesite realizar un 
+ \begin{verbatim}
+  docker-compose down -v
+  docker volume prune -f
+ \end{verbatim}
+ Borrabo la base de datos, aunque por algun motivo me seguia detectando los datos, por lo que necesité configurar Odoo de nuevo para que funcionase parcialmente de nuevo. No se si existe una forma de realizar debugging con catch
+  errors que permita realmente saber que elemento falla sin tardar 30 minutos en arreglar el error.
+\begin{verbatim}
+
+Traceback (most recent call last):
+
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 2576, in __call__
+
+    response = request._serve_db()
+
+               ^^^^^^^^^^^^^^^^^^^
+
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 2103, in _serve_db
+
+    return self._transactioning()
+
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 2166, in _transactioning
+
+    return service_model.retrying(func, env=self.env)
+
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/usr/lib/python3/dist-packages/odoo/service/model.py", line 156, in retrying
+
+    result = func()
+
+             ^^^^^^
+
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 2133, in _serve_ir_http
+
+    response = self.dispatcher.dispatch(rule.endpoint, args)
+
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+\end{verbatim}
+Siendo los errores similares a esto, indicando los puntos que son afectados en vez de el punto donde realmente da el error.
 \end{document}

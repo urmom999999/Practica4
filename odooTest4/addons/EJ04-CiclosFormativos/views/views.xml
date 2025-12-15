@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ========== CICLOS FORMATIVOS ========== -->
     <record id="ciclo_formativo_action" model="ir.actions.act_window">
         <field name="name">Ciclos Formativos</field>
         <field name="res_model">ciclo.formativo</field>
@@ -13,7 +12,7 @@
               parent="gestion_educativa_menu" 
               action="ciclo_formativo_action"/>
     
-    <!-- Vista lista para ciclos formativos -->
+
     <record id="ciclo_formativo_view_list" model="ir.ui.view">
         <field name="name">ciclo.formativo.list</field>
         <field name="model">ciclo.formativo</field>
@@ -24,8 +23,7 @@
             </list>
         </field>
     </record>
-    
-    <!-- Vista formulario para ciclos formativos -->
+
     <record id="ciclo_formativo_view_form" model="ir.ui.view">
         <field name="name">ciclo.formativo.form</field>
         <field name="model">ciclo.formativo</field>
@@ -52,7 +50,7 @@
         </field>
     </record>
     
-    <!-- ========== MÓDULOS ========== -->
+
     <record id="modulo_action" model="ir.actions.act_window">
         <field name="name">Módulos</field>
         <field name="res_model">modulo</field>
@@ -62,8 +60,7 @@
     <menuitem name="Módulos" id="modulo_menu" 
               parent="gestion_educativa_menu" 
               action="modulo_action"/>
-    
-    <!-- Vista lista para módulos -->
+
     <record id="modulo_view_list" model="ir.ui.view">
         <field name="name">modulo.list</field>
         <field name="model">modulo</field>
@@ -76,7 +73,6 @@
         </field>
     </record>
     
-    <!-- Vista formulario para módulos -->
     <record id="modulo_view_form" model="ir.ui.view">
         <field name="name">modulo.form</field>
         <field name="model">modulo</field>
@@ -100,8 +96,7 @@
             </form>
         </field>
     </record>
-    
-    <!-- ========== ALUMNOS ========== -->
+
     <record id="alumno_action" model="ir.actions.act_window">
         <field name="name">Alumnos</field>
         <field name="res_model">alumno</field>
@@ -111,8 +106,6 @@
     <menuitem name="Alumnos" id="alumno_menu" 
               parent="gestion_educativa_menu" 
               action="alumno_action"/>
-    
-    <!-- Vista lista para alumnos -->
     <record id="alumno_view_list" model="ir.ui.view">
         <field name="name">alumno.list</field>
         <field name="model">alumno</field>
@@ -124,8 +117,6 @@
             </list>
         </field>
     </record>
-    
-    <!-- Vista formulario para alumnos -->
     <record id="alumno_view_form" model="ir.ui.view">
         <field name="name">alumno.form</field>
         <field name="model">alumno</field>
@@ -152,8 +143,6 @@
             </form>
         </field>
     </record>
-    
-    <!-- ========== PROFESORES ========== -->
     <record id="profesor_action" model="ir.actions.act_window">
         <field name="name">Profesores</field>
         <field name="res_model">profesor</field>
@@ -163,8 +152,7 @@
     <menuitem name="Profesores" id="profesor_menu" 
               parent="gestion_educativa_menu" 
               action="profesor_action"/>
-    
-    <!-- Vista lista para profesores -->
+
     <record id="profesor_view_list" model="ir.ui.view">
         <field name="name">profesor.list</field>
         <field name="model">profesor</field>
@@ -176,8 +164,6 @@
             </list>
         </field>
     </record>
-    
-    <!-- Vista formulario para profesores -->
     <record id="profesor_view_form" model="ir.ui.view">
         <field name="name">profesor.form</field>
         <field name="model">profesor</field>

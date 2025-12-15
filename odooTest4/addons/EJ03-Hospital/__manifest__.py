@@ -2,7 +2,7 @@
 {
     'name': "Gestión Hospital",
     'summary': "Gestion pacientes, médicos y consultas",
-    'description': "Modulo gestion pacientes, médicos y consultas",
+    'description': "Modulo gestion hospital",
     'version': '0.1',
     'depends': ['base'],
     'data': [

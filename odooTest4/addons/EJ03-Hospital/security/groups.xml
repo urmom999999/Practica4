@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Grupo para el personal del hospital -->
     <record id="grupo_hospital_personal" model="res.groups">
         <field name="name">Personal Hospital</field>
-        <!-- Incluimos a los administradores en este grupo por defecto -->
         <field name="users" eval="[(4, ref('base.user_admin'))]" />
-        <!-- Podemos añadir más usuarios si es necesario -->
     </record>
 </odoo>
