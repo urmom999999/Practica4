@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista formulario médico -->
+    <record id="hospital_medico_view_form" model="ir.ui.view">
+        <field name="name">hospital.medico.form</field>
+        <field name="model">hospital.medico</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="nombre_completo" class="oe_edit_only"/>
+                        <h1>
+                            <field name="nombre_completo"/>
+                        </h1>
+                        <group>
+                            <group>
+                                <field name="nombre"/>
+                                <field name="apellidos"/>
+                                <field name="numero_colegiado"/>
+                            </group>
+                            <group>
+                                <field name="especialidad"/>
+                                <field name="activo"/>
+                            </group>
+                        </group>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="telefono" widget="phone"/>
+                            <field name="email" widget="email"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Consultas realizadas">
+                            <field name="consulta_ids">
+                                <tree>
+                                    <field name="fecha_consulta"/>
+                                    <field name="paciente_id"/>
+                                    <field name="diagnostico" widget="html"/>
+                                    <field name="estado"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vista lista médico -->
+    <record id="hospital_medico_view_tree" model="ir.ui.view">
+        <field name="name">hospital.medico.tree</field>
+        <field name="model">hospital.medico</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="nombre_completo"/>
+                <field name="numero_colegiado"/>
+                <field name="especialidad"/>
+                <field name="activo"/>
+                <field name="consulta_ids" widget="badge" type="integer"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vista búsqueda médico -->
+    <record id="hospital_medico_view_search" model="ir.ui.view">
+        <field name="name">hospital.medico.search</field>
+        <field name="model">hospital.medico</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nombre_completo"/>
+                <field name="numero_colegiado"/>
+                <field name="especialidad"/>
+                <separator/>
+                <filter string="Activos" name="activos" 
+                        domain="[('activo','=',True)]"/>
+                <filter string="Inactivos" name="inactivos" 
+                        domain="[('activo','=',False)]"/>
+            </search>
+        </field>
+    </record>
+</odoo>

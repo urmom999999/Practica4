@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista formulario paciente -->
+    <record id="hospital_paciente_view_form" model="ir.ui.view">
+        <field name="name">hospital.paciente.form</field>
+        <field name="model">hospital.paciente</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="%(hospital_consulta_action)d" 
+                            type="action" 
+                            string="Ver consultas"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(hospital_consulta_action)d" 
+                                type="action" 
+                                class="oe_stat_button"
+                                icon="fa-stethoscope">
+                            <field name="consulta_ids" widget="statinfo" string="Consultas"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="nombre_completo" class="oe_edit_only"/>
+                        <h1>
+                            <field name="nombre_completo" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="nombre"/>
+                            <field name="apellidos"/>
+                            <field name="edad"/>
+                        </group>
+                        <group>
+                            <field name="telefono" widget="phone"/>
+                            <field name="email" widget="email"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Síntomas">
+                            <field name="sintomas" nolabel="1"/>
+                        </page>
+                        <page string="Historial">
+                            <field name="historial_consultas" nolabel="1"/>
+                        </page>
+                        <page string="Consultas">
+                            <field name="consulta_ids">
+                                <tree>
+                                    <field name="fecha_consulta"/>
+                                    <field name="medico_id"/>
+                                    <field name="diagnostico" widget="html"/>
+                                    <field name="estado"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vista lista paciente -->
+    <record id="hospital_paciente_view_tree" model="ir.ui.view">
+        <field name="name">hospital.paciente.tree</field>
+        <field name="model">hospital.paciente</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="nombre_completo"/>
+                <field name="edad"/>
+                <field name="telefono"/>
+                <field name="email"/>
+                <field name="consulta_ids" widget="badge" type="integer"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vista kanban paciente -->
+    <record id="hospital_paciente_view_kanban" model="ir.ui.view">
+        <field name="name">hospital.paciente.kanban</field>
+        <field name="model">hospital.paciente</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="edad">
+                <field name="nombre_completo"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_title">
+                                <field name="nombre_completo"/>
+                            </div>
+                            <div t-if="record.edad.raw_value">
+                                Edad: <field name="edad"/>
+                            </div>
+                            <div t-if="record.telefono.raw_value">
+                                Tel: <field name="telefono"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Vista búsqueda paciente -->
+    <record id="hospital_paciente_view_search" model="ir.ui.view">
+        <field name="name">hospital.paciente.search</field>
+        <field name="model">hospital.paciente</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nombre_completo"/>
+                <field name="email"/>
+                <field name="telefono"/>
+                <filter string="Sin consultas" name="sin_consultas" 
+                        domain="[('consulta_ids','=',False)]"/>
+                <separator/>
+                <filter string="Mayores de 60" name="mayores_60" 
+                        domain="[('edad','>',60)]"/>
+                <filter string="Menores de 18" name="menores_18" 
+                        domain="[('edad','<',18)]"/>
+            </search>
+        </field>
+    </record>
+</odoo>

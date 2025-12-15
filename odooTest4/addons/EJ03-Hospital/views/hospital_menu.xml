@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menú principal -->
+    <menuitem 
+        id="hospital_main_menu" 
+        name="Hospital" 
+        sequence="10"
+    />
+    
+    <!-- Submenús -->
+    <menuitem 
+        id="hospital_pacientes_menu" 
+        name="Pacientes" 
+        parent="hospital_main_menu" 
+        sequence="10"
+    />
+    <menuitem 
+        id="hospital_medicos_menu" 
+        name="Médicos" 
+        parent="hospital_main_menu" 
+        sequence="20"
+    />
+    <menuitem 
+        id="hospital_consultas_menu" 
+        name="Consultas" 
+        parent="hospital_main_menu" 
+        sequence="30"
+    />
+    
+    <!-- Acciones -->
+    <record id="hospital_paciente_action" model="ir.actions.act_window">
+        <field name="name">Pacientes</field>
+        <field name="res_model">hospital.paciente</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay pacientes registrados
+            </p>
+        </field>
+    </record>
+    
+    <record id="hospital_medico_action" model="ir.actions.act_window">
+        <field name="name">Médicos</field>
+        <field name="res_model">hospital.medico</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="domain">[('activo', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay médicos registrados
+            </p>
+        </field>
+    </record>
+    
+    <record id="hospital_consulta_action" model="ir.actions.act_window">
+        <field name="name">Consultas</field>
+        <field name="res_model">hospital.consulta</field>
+        <field name="view_mode">tree,form,calendar</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay consultas programadas
+            </p>
+        </field>
+    </record>
+    
+    <!-- Asignar acciones a menús -->
+    <menuitem 
+        id="hospital_paciente_menu" 
+        name="Pacientes" 
+        parent="hospital_pacientes_menu" 
+        action="hospital_paciente_action"
+        sequence="10"
+    />
+    <menuitem 
+        id="hospital_medico_menu" 
+        name="Médicos" 
+        parent="hospital_medicos_menu" 
+        action="hospital_medico_action"
+        sequence="10"
+    />
+    <menuitem 
+        id="hospital_consulta_menu" 
+        name="Consultas" 
+        parent="hospital_consultas_menu" 
+        action="hospital_consulta_action"
+        sequence="10"
+    />
+</odoo>
