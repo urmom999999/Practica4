@@ -1,5 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-# Permisos para TODOS los usuarios (base.group_user) - lectura y escritura básica
 access_ciclo_formativo_user,ciclo.formativo,model_ciclo_formativo,base.group_user,1,1,1,0
 access_modulo_user,modulo,model_modulo,base.group_user,1,1,1,0
 access_alumno_user,alumno,model_alumno,base.group_user,1,1,1,0
